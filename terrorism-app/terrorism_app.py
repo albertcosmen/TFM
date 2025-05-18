@@ -334,7 +334,7 @@ def pie_most_active_groups (df,country):
 
 
 
-df = load_data("https://drive.google.com/file/d/1I4X4xg2ynkr7AoVhSYJVRATrSWPN_7TY/view?usp=sharing")
+df = load_data("https://drive.google.com/uc?export=download&id=1I4X4xg2ynkr7AoVhSYJVRATrSWPN_7TY")
 
 
 st.title("Global Terrorism Exploration APP")

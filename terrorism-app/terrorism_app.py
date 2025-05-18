@@ -561,7 +561,12 @@ with tab2:
     
     # Evaluación con cross-validation
     with st.spinner("Evaluating model with 5-fold cross-validation..."):
-        cv_scores = cross_val_score(train_model_xgb(X, Y), X, Y, cv=5, scoring="accuracy")
+        cv_model = XGBClassifier(
+            use_label_encoder=False,
+            eval_metric='logloss',
+            scale_pos_weight=(len(Y[Y == 0]) / len(Y[Y == 1]))
+        )
+        cv_scores = cross_val_score(cv_model, X, Y, cv=5, scoring="accuracy")
         st.markdown("### 🧪 Cross-validation accuracy scores:")
         st.write(cv_scores)
         st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")
@@ -596,7 +601,12 @@ with tab2:
     
     # --- Validación cruzada (scoring = accuracy) ---
     with st.spinner("Evaluating model with 5-fold cross-validation..."):
-        cv_scores = cross_val_score(classifier, X, Y, cv=5, scoring="accuracy")
+        cv_model = XGBClassifier(
+            use_label_encoder=False,
+            eval_metric='logloss',
+            scale_pos_weight=(len(Y[Y == 0]) / len(Y[Y == 1]))
+        )
+        cv_scores = cross_val_score(cv_model, X, Y, cv=5, scoring="accuracy")
         st.markdown("### 🧪 Cross-validation accuracy scores:")
         st.write(cv_scores)
         st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")

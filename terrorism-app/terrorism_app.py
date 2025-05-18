@@ -56,27 +56,15 @@ def load_data(filename):
     return df
 
 @st.cache_resource
-def train_model_xgb(dfnew):
-    dfnew = dfnew.dropna()
-    X = dfnew.drop(["success"], axis=1, inplace=False)
-    Y = dfnew["success"]
-
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=100)
-    # Calcula peso para la clase minoritaria
+def train_model_xgb(X, Y):
     neg, pos = np.bincount(Y)
     scale = neg / pos
     classifier = XGBClassifier(
         use_label_encoder=False,
         eval_metric='logloss',
-        scale_pos_weight=scale)
-    classifier.fit(X_train, y_train)
-        
-    y_pred = classifier.predict(X_test)
-    acc = round(accuracy_score(y_test, y_pred) * 100, 2)
-    prec = round(precision_score(y_test, y_pred) * 100, 2)
-    rec = round(recall_score(y_test, y_pred) * 100, 2)
-
-    return classifier, acc, prec, rec
+        scale_pos_weight=scale
+    )
+    return classifier
 
 
 def world_line_attacks_over_time(df):
@@ -568,7 +556,21 @@ with tab2:
     X_train, X_test, y_train, y_test = train_test_split( X, Y, test_size = 0.3, random_state = 100)
     
     dfnew = dfnew.drop(columns=["lab_kill", "lab_wound"], errors="ignore")
-    classifier, acc, prec, rec = train_model_xgb(dfnew)
+    classifier = train_model_xgb(X, Y)
+    classifier.fit(X_train, y_train)
+    
+    # Evaluación con cross-validation
+    with st.spinner("Evaluating model with 5-fold cross-validation..."):
+        cv_scores = cross_val_score(train_model_xgb(X, Y), X, Y, cv=5, scoring="accuracy")
+        st.markdown("### 🧪 Cross-validation accuracy scores:")
+        st.write(cv_scores)
+        st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")
+    
+    # Recalcular métricas en test set
+    y_pred = classifier.predict(X_test)
+    acc = round(accuracy_score(y_test, y_pred) * 100, 2)
+    prec = round(precision_score(y_test, y_pred) * 100, 2)
+    rec = round(recall_score(y_test, y_pred) * 100, 2)
     
     # --- Importancia global de variables ---
     importances = classifier.feature_importances_

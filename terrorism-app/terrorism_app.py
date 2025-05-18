@@ -569,7 +569,6 @@ with tab2:
     
     dfnew = dfnew.drop(columns=["lab_kill", "lab_wound"], errors="ignore")
     classifier, acc, prec, rec = train_model_xgb(dfnew)
-    classifier.fit(X_train, y_train)
     
     # --- Importancia global de variables ---
     importances = classifier.feature_importances_

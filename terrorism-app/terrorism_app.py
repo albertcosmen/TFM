@@ -535,6 +535,14 @@ with tab2:
     
     st.header(f"{country}: Machine Learning, terrorism success attack prediction")
     st.markdown("")
+    
+    st.markdown(
+    "This section uses a machine learning model trained on historical terrorism data to predict the likelihood that a future "
+    "terrorist attack will succeed. The model is based on features such as attack type, weapon, casualties, location, and more. "
+    "You can review model performance, interpret results with SHAP, and simulate your own scenarios to understand what factors "
+    "contribute most to an attack's success."
+    )
+    st.markdown("")
     st.markdown("")
     
     #Choosing Variables for feed our  model
@@ -567,7 +575,11 @@ with tab2:
             scale_pos_weight=(len(Y[Y == 0]) / len(Y[Y == 1]))
         )
         cv_scores = cross_val_score(cv_model, X, Y, cv=5, scoring="accuracy")
-        st.markdown("### 🧪 Cross-validation accuracy scores:")
+        st.subheader("Cross-validation accuracy scores:")
+        st.markdown(
+            "Below are the results of a 5-fold cross-validation. This helps estimate how well the model generalizes to unseen data. "
+            "Higher scores mean better predictive performance."
+        )
         st.write(cv_scores)
         st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")
     
@@ -587,7 +599,12 @@ with tab2:
         "Importance": importances
     }).sort_values(by="Importance", ascending=False).head(5)
     
-    st.subheader("🔝 Top 5 Most Important Features (Global)")
+    st.subheader("Top 5 Most Important Features (Global)")
+    
+    st.markdown(
+    "The table and chart below show the most influential variables used by the model to predict whether a terrorist attack will succeed. "
+    "Higher importance scores indicate greater impact on the model's decision."
+)
     st.table(importance_df)
     
     # También mostrar como gráfico de barras
@@ -599,17 +616,17 @@ with tab2:
     
     st.pyplot(fig_imp)
     
-    # --- Validación cruzada (scoring = accuracy) ---
-    with st.spinner("Evaluating model with 5-fold cross-validation..."):
-        cv_model = XGBClassifier(
-            use_label_encoder=False,
-            eval_metric='logloss',
-            scale_pos_weight=(len(Y[Y == 0]) / len(Y[Y == 1]))
-        )
-        cv_scores = cross_val_score(cv_model, X, Y, cv=5, scoring="accuracy")
-        st.markdown("### 🧪 Cross-validation accuracy scores:")
-        st.write(cv_scores)
-        st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")
+    # # --- Validación cruzada (scoring = accuracy) ---
+    # with st.spinner("Evaluating model with 5-fold cross-validation..."):
+    #     cv_model = XGBClassifier(
+    #         use_label_encoder=False,
+    #         eval_metric='logloss',
+    #         scale_pos_weight=(len(Y[Y == 0]) / len(Y[Y == 1]))
+    #     )
+    #     cv_scores = cross_val_score(cv_model, X, Y, cv=5, scoring="accuracy")
+    #     st.markdown("Cross-validation accuracy scores:")
+    #     st.write(cv_scores)
+    #     st.markdown(f"**Mean Accuracy (5-fold):** {cv_scores.mean():.2%}")
     
     ##Predict Y with the x test
     y_pred = classifier.predict(X_test)
@@ -619,6 +636,11 @@ with tab2:
     fig_cm, ax_cm = plt.subplots()
     ConfusionMatrixDisplay(cm).plot(ax=ax_cm)
     st.subheader("Confusion Matrix (Test Set)")
+    st.markdown(
+    "The confusion matrix provides a breakdown of model predictions vs actual outcomes. "
+    "It shows the number of correctly and incorrectly classified attacks as either successful or failed. "
+    "This helps assess whether the model is biased toward one outcome and how well it distinguishes between classes."
+    )   
     st.pyplot(fig_cm)
     
     # --- Curva ROC ---
@@ -636,12 +658,23 @@ with tab2:
     ax_roc.legend(loc="lower right")
     
     st.subheader(" ROC Curve (Test Set)")
+    st.markdown(
+    "The ROC (Receiver Operating Characteristic) curve shows the trade-off between the true positive rate and false positive rate "
+    "at different classification thresholds. AUC (Area Under the Curve) summarizes this performance — a value close to 1 indicates strong separation between classes."
+    )   
     st.pyplot(fig_roc)
     
     ## Calculation of accuracy score
     ac = str(acc)
     
-    st.markdown("### Model Performance Metrics:")
+    st.subheader("Model Performance Metrics:")
+    st.markdown(
+    "Below are the core metrics used to evaluate model performance on the test set:\n"
+    "- **Accuracy**: Overall correctness of predictions.\n"
+    "- **Precision**: How many predicted successes were actually true.\n"
+    "- **Recall**: How many true successes were correctly predicted.\n"
+    "These help measure how well the model balances false positives and false negatives."
+    )   
     st.table(pd.DataFrame({
         "Metric": ["Accuracy", "Precision", "Recall"],
         "Value (%)": [acc, prec, rec]
@@ -650,6 +683,12 @@ with tab2:
     # Cálculo de F1 y AUC
     f1 = round(f1_score(y_test, y_pred) * 100, 2)
     roc_auc = round(roc_auc_score(y_test, classifier.predict_proba(X_test)[:, 1]) * 100, 2)
+    
+    st.markdown(
+    "Additional metrics:\n"
+    "- **F1-Score**: Harmonic mean of precision and recall — useful when class imbalance is present.\n"
+    "- **ROC-AUC**: Area under the ROC curve — evaluates the model’s ability to distinguish between classes across thresholds."
+    )
     
     # Mostrar en tabla adicional
     st.table(pd.DataFrame({
@@ -671,7 +710,11 @@ with tab2:
     ax_pr.legend()
     ax_pr.grid(True)
     
-    st.subheader("🎛 Precision / Recall vs Threshold")
+    st.subheader("Precision / Recall vs Threshold")
+    st.markdown(
+    "This chart illustrates how the model’s precision and recall change as you adjust the classification threshold. "
+    "It helps you find the right balance between false positives and false negatives."
+    )   
     st.pyplot(fig_pr)
     
     
@@ -763,6 +806,12 @@ with tab2:
         
         return report_data
     
+    st.markdown("---")
+    st.subheader("Simulate an Attack Scenario")
+    st.markdown(
+        "Fill in the following fields to simulate a potential terrorist attack. "
+        "The model will predict whether it is likely to succeed and provide an explanation for its decision."
+    )
     user_data = user_report(df, dfnew, region1,country)
     
     
@@ -770,7 +819,7 @@ with tab2:
     ## Predict using the inputs from the user
     user_data = user_data[X.columns]
     
-    threshold = 0.7
+    # threshold = 0.7
     
     user_data["nkill"] = np.log1p(user_data["nkill"])
     user_data["nwound"] = np.log1p(user_data["nwound"])
@@ -779,13 +828,41 @@ with tab2:
     # Obtener probabilidad de clase 'Success'
     proba = classifier.predict_proba(user_data)[0][1]
     user_result = int(proba >= threshold)
-    st.markdown(f"🔢 Model confidence for 'Success': **{proba:.2%}**")
+    st.markdown(f" Model confidence for 'Success': **{proba:.2%}**")
+    
+    
+    
+    ## Result prediction
+    
+    
+    st.subheader("The algorithm predicts that the terrorist attack would:")
+    output = "Succeed" if user_result == 1 else "Failed"
+    st.header(output)
+    
+    proba = classifier.predict_proba(user_data)[0][1]
+    st.markdown(f"Model confidence for 'Success': **{proba:.2f}**")
+    
+    st.markdown(
+    f"ℹ️ *Note:* The predicted probability ({proba:.2%}) represents the model's confidence for the 'Success' class.\n"
+    f"The actual prediction of 'Succeed' or 'Failed' is based on your selected threshold of **{threshold:.0%}**."
+    )
     
     # SHAP Explanation
     explainer = shap.Explainer(classifier, X_train)
     shap_values = explainer(user_data)
     
-    st.subheader("🔍 SHAP Explanation for This Prediction")
+    st.subheader("SHAP Explanation for This Prediction")
+    st.markdown(""" This section helps you understand **why the model made its prediction** by showing the influence of each input variable on the final decision.
+    
+    SHAP (SHapley Additive exPlanations) assigns a contribution value to each feature, indicating whether it pushed the prediction **towards success or failure**:
+    
+    - 🔺 **Positive SHAP values** push the prediction toward **Success**.
+    - 🔻 **Negative SHAP values** push the prediction toward **Failure**.
+    
+    The larger the absolute value, the **greater the influence** that feature had in this specific prediction.
+    
+    Use this breakdown to explore **which factors were most responsible** for the model’s outcome in this simulated attack scenario.
+    """)
     
     # Convert SHAP values to a summary table
     shap_df = pd.DataFrame({
@@ -809,21 +886,11 @@ with tab2:
     fig, ax = plt.subplots(figsize=(8, 6))
     shap.plots.waterfall(shap_values[0], max_display=10, show=False)
     st.pyplot(fig)
-    
-    ## Result prediction
-    
-    
-    st.subheader("The algorithm predicts that the terrorist attack would:")
-    output = "Succeed" if user_result == 1 else "Failed"
-    st.header(output)
-    
-    proba = classifier.predict_proba(user_data)[0][1]
-    st.markdown(f"Model confidence for 'Success': **{proba:.2f}**")
 
 with tab3:
     
     st.markdown("---")
-    st.header("🔮 Prospective Attack Risk Simulation")
+    st.header("Prospective Attack Risk Simulation")
     
     st.markdown("Simulate a possible future scenario to estimate the historical likelihood of a terrorist attack on a given date and location.")
     
@@ -864,18 +931,18 @@ with tab3:
     avg_wound = round(matching_dates["nwound"].mean(), 1) if not matching_dates.empty else 0
     
     # --- Resultados
-    st.subheader(f"🗓 Attack risk for {future_city}, {future_country} on {future_date.strftime('%d/%m/%Y')}:")
-    st.markdown(f"**📊 Historical probability of attack:** {attack_rate:.2f}%")
-    st.markdown(f"**🎯 Most common type of attack:** {common_type}")
-    st.markdown(f"**⚰️ Average casualties:** {avg_kill} killed, {avg_wound} wounded")
+    st.subheader(f"Attack risk for {future_city}, {future_country} on {future_date.strftime('%d/%m/%Y')}:")
+    st.markdown(f"** Historical probability of attack:** {attack_rate:.2f}%")
+    st.markdown(f"** Most common type of attack:** {common_type}")
+    st.markdown(f"** Average casualties:** {avg_kill} killed, {avg_wound} wounded")
     
     if matching_dates.empty:
-        st.info("ℹ️ No historical attacks found for this specific day. Data may be sparse.")
+        st.info(" No historical attacks found for this specific day. Data may be sparse.")
     
-    st.markdown("## 🧠 Simulate This Scenario with the ML Model")
+    st.markdown("## Simulate This Scenario with the ML Model")
     
     if not df_city.empty:
-        if st.button("🧪 Simulate potential attack in model"):
+        if st.button(" Simulate potential attack in model"):
             # 1. Tomar valores históricos más frecuentes
             sample = df_city.dropna().sample(1)  # o usar .mode() para valores más comunes
     
@@ -910,7 +977,7 @@ with tab3:
             pred_wound = int(np.expm1(sim_input["nwound"].values[0]))
             
             # Explicación más humana
-            st.subheader("🧠 Predicted Outcome")
+            st.subheader(" Predicted Outcome")
             st.markdown(
                 f"""
                 Based on historical patterns and model analysis:
@@ -919,12 +986,26 @@ with tab3:
                 on **{future_date.strftime('%d/%m/%Y')}** would **{sim_result}** if it occurred.
             
                 Estimated impact:
-                - 🟥 **{pred_kill} fatalities**
-                - 🟧 **{pred_wound} injuries**
+                -  **{pred_kill} fatalities**
+                -  **{pred_wound} injuries**
                 """
             )
     
-            # 6. SHAP Explanation
+            # # 6. SHAP Explanation
+            
+            st.subheader("SHAP Explanation for This Prediction")
+            st.markdown(""" This section helps you understand **why the model made its prediction** by showing the influence of each input variable on the final decision.
+            
+            SHAP (SHapley Additive exPlanations) assigns a contribution value to each feature, indicating whether it pushed the prediction **towards success or failure**:
+            
+            - 🔺 **Positive SHAP values** push the prediction toward **Success**.
+            - 🔻 **Negative SHAP values** push the prediction toward **Failure**.
+            
+            The larger the absolute value, the **greater the influence** that feature had in this specific prediction.
+            
+            Use this breakdown to explore **which factors were most responsible** for the model’s outcome in this simulated attack scenario.
+            """)
+            
             sim_explainer = shap.Explainer(classifier, X_train)
             sim_shap = sim_explainer(sim_input)
     
@@ -953,7 +1034,7 @@ with tab4:
 
     input_csv = export_input.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="⬇️ Download user input + prediction",
+        label=" Download user input + prediction",
         data=input_csv,
         file_name="prediction_summary.csv",
         mime="text/csv"
